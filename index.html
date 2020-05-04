@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+
+<meta charset="UTF-8">
+<title> RasPi Car Remote Controller </title>
+
+<script type="text/javascript">
+    const $ = document.querySelector.bind(document);
+    const ws = new WebSocket('http://127.0.0.1:2112');
+    const state = {
+        l: false,
+        r: false,
+        f: false,
+        b: false,
+    }
+
+    function move (...dirs) {
+        for (const dir of dirs)
+            state[dir] = false;
+        stateUpdate();
+    }
+
+    function stop (...dirs) {
+        for (const dir of dirs)
+            state[dir] = false;
+        stateUpdate();
+    }
+
+    function stateUpdate () {
+        ws.send({
+            op: 'steer',
+            moveState: JSON.stringify(state),
+        })
+    }
+</script>
+
+<style>
+    td {
+        width: 100px;
+        height: 100px;
+        border: none;
+        outline: none;
+        margin: 0;
+        padding: 0;
+    }
+
+    button {
+        width: 100%;
+        height: 100%;
+        background: #ededed;
+        font-size: 50px;
+        border: 2px solid black;
+        outline: none;
+        cursor: pointer;
+    }
+
+    button#stop {
+        background: red;
+    }
+</style>
+
+
+<table>
+    <tr>
+        <td></td>
+        <td>
+            <button onmousedown="move('f')" onmouseup="stop('f')"> ↑ </button>
+        </td>
+        <td></td>
+    </tr>
+
+    <tr>
+        <td>
+            <button onmousedown="move('l')" onmouseup="stop('l')"> ← </button>
+        </td>
+        <td>
+            <button id="stop" onmousedown="stop('l', 'r', 'f', 'b')"> STOP </button>
+        </td>
+        <td>
+            <button onmousedown="move('r')" onmouseup="stop('r')"> → </button>
+        </td>
+    </tr>
+
+    <tr>
+        <td></td>
+        <td>
+            <button onmousedown="move('b')" onmouseup="stop('b')"> ↓ </button>
+        </td>
+        <td></td>
+    </tr>
+</table>
