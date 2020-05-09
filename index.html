@@ -5,7 +5,18 @@
 
 <script type="text/javascript">
     const $ = document.querySelector.bind(document);
-    const ws = new WebSocket('http://127.0.0.1:2112');
+    const ws = new WebSocket('ws://127.0.0.1:2112');
+
+    ws.addEventListener('open', function () {
+        ws.send('ping');
+    });
+
+    ws.addEventListener('message', function (msg) {
+        const li = document.createElement('li');
+        li.innerText = msg.data;
+        $('#message-log').prepend(li);
+    });
+
     const state = {
         l: false,
         r: false,
@@ -15,7 +26,7 @@
 
     function move (...dirs) {
         for (const dir of dirs)
-            state[dir] = false;
+            state[dir] = true;
         stateUpdate();
     }
 
@@ -26,10 +37,10 @@
     }
 
     function stateUpdate () {
-        ws.send({
+        ws.send(JSON.stringify({
             op: 'steer',
-            moveState: JSON.stringify(state),
-        })
+            moveState: state,
+        }))
     }
 </script>
 
@@ -88,3 +99,6 @@
         <td></td>
     </tr>
 </table>
+
+<h2> Message Log </h2>
+<ul id="message-log"></ul>
